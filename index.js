@@ -1,17 +1,17 @@
 import "./db/index.js";
 import express from "express";
-import errorHandler from "./middlewares/errorHandler.js";
-import userRouter from "./routers/userRouter.js";
+import usersRouter from "./routers/usersRouter.js";
+import errorHandler from "./middleware/errorHandler.js";
 import cors from "cors";
 
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 3000;
 
 const app = express();
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.use("/users", userRouter);
+app.use("/users", usersRouter);
 app.use("*", (req, res) => res.status(404).json({ error: "Not Found" }));
 app.use(errorHandler);
 
