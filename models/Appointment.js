@@ -3,8 +3,9 @@ import { Schema, model } from "mongoose";
 const appointmentSchema = new Schema({
   userId: { type: Schema.Types.ObjectId, ref: "User", required: true },
   doctorId: { type: Schema.Types.ObjectId, ref: "Doctor", required: true },
-  appointmentTime: { type: String, required: true },
-  petName: { type: String, required: false },
+  date: { type: String, required: true },
+  timeSlot: { type: String, required: true },
+  petId: { type: Schema.Types.ObjectId, ref: "Pet", required: true },
   additionalNotes: { type: String, required: false },
 });
 
