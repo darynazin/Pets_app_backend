@@ -13,7 +13,21 @@ export const getUserAppointments = asyncHandler(async (req, res, next) => {
 });
 
 export const createAppointment = asyncHandler(async (req, res, next) => {
-  const newAppointment = new Appointment(req.body);
+  const userId = req.user._id;
+
+  const { doctorId, date, timeSlot, petId } = req.body;
+
+  if (!doctorId || !date || !timeSlot || !petId) {
+    return next(new ErrorResponse("All fields are required", 400));
+  }
+
+  const newAppointment = new Appointment({
+    userId,
+    doctorId,
+    date,
+    timeSlot,
+    petId,
+  });
 
   await newAppointment.save();
 
@@ -42,37 +56,34 @@ export const updateAppointment = asyncHandler(async (req, res, next) => {
   res.status(200).json(updatedAppointment);
 });
 
-// export const deleteAppointment = asyncHandler(async (req, res, next) => {
-//   const { appointmentId } = req.params;
-  
-//   console.log(appointmentId);
-//   const appointment = await Appointment.findById(appointmentId);
-//   if (!appointment) {
-//     return next(new ErrorResponse("Appointment ID is required", 404));
-//   }
+export const deleteAppointment = asyncHandler(async (req, res, next) => {
+  const { id } = req.params;
 
-//   if (appointment.userId.toString() !== req.user._id.toString()) {
-//     return next(
-//       new ErrorResponse("Unauthorized to delete this appointment", 403)
-//     );
-//   }
-
-//   await appointment.remove();
-
-//   res.status(204).json({});
-// });
-
-export const getDoctorAppointments = asyncHandler(async (req, res, next) => {
-  const appointment = await Appointment.findById(req.params.id);
+  console.log(id);
+  const appointment = await Appointment.findById(id);
   if (!appointment) {
-    return next(new ErrorResponse("Appointment not found", 404));
+    return next(new ErrorResponse("Appointment ID is required", 404));
   }
 
   if (appointment.userId.toString() !== req.user._id.toString()) {
     return next(
-      new ErrorResponse("Unauthorized to access this appointment", 403)
+      new ErrorResponse("Unauthorized to delete this appointment", 403)
     );
   }
 
-  res.status(200).json(appointment);
+  await Appointment.findByIdAndDelete(id);
+
+  res.status(200).json({ message: "Appointment deleted successfully" });
+});
+
+export const getDoctorAppointments = asyncHandler(async (req, res, next) => {
+  const doctorId = req.params.doctorId;
+  const doctorAppointments = await Appointment.find({ doctorId });
+
+
+  if (!doctorAppointments || doctorAppointments.length === 0) {
+    return res.status(404).json({ message: "No appointments found" });
+  }
+
+  res.status(200).json(doctorAppointments);
 });
