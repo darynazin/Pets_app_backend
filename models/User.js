@@ -1,12 +1,20 @@
 import { Schema, model } from "mongoose";
 
 const userSchema = new Schema({
-  username: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  password: { type: String, required: true },
+  name: { type: String, required: true },
+  email: {
+    type: String,
+    required: true,
+    unique: true,
+    match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+  },
+  password: {
+    type: String,
+    required: true,
+    minlength: 8,
+  },
   image: { type: String, required: false },
-  hoursAvailable: { type: String, required: false, default: "10-12" },
-  pets: { type: [ String ], required: false, default: [] },
+  petsId: [{ type: Schema.Types.ObjectId, ref: "Pet", default: [] }],
 });
 
 export default model("User", userSchema);
