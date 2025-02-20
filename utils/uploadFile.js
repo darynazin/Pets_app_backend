@@ -17,14 +17,12 @@ const validateFile = (file) => {
     throw new Error("Invalid file format");
   }
 
-  // File type validation
   if (!ALLOWED_FILE_TYPES.includes(file.mimetype)) {
     throw new Error(
       `Invalid file type. Allowed types: ${ALLOWED_FILE_TYPES.join(", ")}`
     );
   }
 
-  // File size validation
   if (file.size > MAX_FILE_SIZE) {
     throw new Error(
       `File too large. Maximum size allowed is ${
@@ -35,7 +33,6 @@ const validateFile = (file) => {
 };
 
 export const uploadFile = async (file) => {
-  // Validate file before processing
   validateFile(file);
 
   try {
