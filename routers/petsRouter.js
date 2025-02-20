@@ -13,7 +13,7 @@ const petsRouter = Router();
 
 petsRouter.post(`/`,auth, createPet);
 petsRouter.get(`/`, auth, getMyPets);
-petsRouter.get(`/id`, getPetById);
+petsRouter.get(`/:id`,auth, getPetById);
 petsRouter.put(`/`, auth, updatePet);
 
 export default petsRouter;

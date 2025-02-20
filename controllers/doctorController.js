@@ -3,8 +3,6 @@ import ErrorResponse from "../utils/ErrorResponse.js";
 import bcrypt from "bcrypt";
 import asyncHandler from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
-import Appointment from "../models/Appointment.js";
-
 
 // Get all doctors
 export const getDoctors = asyncHandler(async (req, res, next) => {
@@ -12,9 +10,19 @@ export const getDoctors = asyncHandler(async (req, res, next) => {
   res.status(200).json(doctors);
 });
 
-// Get doctor by ID
 export const getDoctorById = asyncHandler(async (req, res, next) => {
-  const doctor = await Doctor.findById(req.doctor._id);
+  const { id } = req.params;
+  const doctor = await Doctor.findById(id);
+  if (!doctor) {
+    throw new ErrorResponse("Doctor not found", 404);
+  }
+  res.status(200).json(doctor);
+});
+
+// Get doctor by ID
+export const getCurrentDoctor = asyncHandler(async (req, res, next) => {
+  const doctor = await Doctor.findById(req.user._id);
+  console.log(req.user._id);
   if (!doctor) {
     throw new ErrorResponse("Doctor not found", 404);
   }
