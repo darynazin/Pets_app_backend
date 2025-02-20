@@ -11,7 +11,11 @@ import cors from "cors";
 const port = process.env.PORT || 3000;
 
 const app = express();
-app.use(cors({ origin: "*" }));
+app.use(cors({
+  origin: "http://localhost:5173",
+  credentials: true,
+  methods: "GET,POST,PUT,DELETE",
+}));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use("/users", usersRouter);
