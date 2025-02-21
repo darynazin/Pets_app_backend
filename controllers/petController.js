@@ -3,16 +3,16 @@ import ErrorResponse from "../utils/ErrorResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
 
-// Get all pets
+
 export const getMyPets = asyncHandler(async (req, res, next) => {
   const userId = req.user._id;
-  const pets = await Pet.find(userId);
+  const pets = await Pet.find({ ownerId: userId });
   res.status(200).json(pets);
 });
 
-// Get pet by ID
+
 export const getPetById = asyncHandler(async (req, res, next) => {
-  const pet = await Pet.findById(req.pet._id);
+  const pet = await Pet.findById(req.params.id);
   if (!pet) {
     throw new ErrorResponse("Pet not found", 404);
   }

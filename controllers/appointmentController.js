@@ -3,7 +3,15 @@ import ErrorResponse from "../utils/ErrorResponse.js";
 import Appointment from "../models/Appointment.js";
 
 export const getUserAppointments = asyncHandler(async (req, res, next) => {
-  const userAppointments = await Appointment.find({ userId: req.user._id });
+  const userAppointments = await Appointment.find({ userId: req.user._id })
+    .populate({
+      path: 'petId',
+      select: 'name',
+    })
+    .populate({
+      path: 'doctorId',
+      select: 'name',
+    });
 
   if (!userAppointments || userAppointments.length === 0) {
     return res.status(404).json({ message: "No appointments found" });

@@ -8,6 +8,7 @@ import {
   deleteDoctor,
   loginDoctor,
   logoutDoctor,
+  getCurrentDoctor
 } from '../controllers/doctorController.js';
 
 import { auth } from '../middleware/authMiddleware.js';
@@ -18,7 +19,8 @@ doctorsRouter.post(`/`, createDoctor);
 doctorsRouter.post(`/login`, loginDoctor);
 doctorsRouter.post(`/logout`, auth, logoutDoctor);
 doctorsRouter.get(`/`, getDoctors);
-doctorsRouter.get(`/me`, getDoctorById);
+doctorsRouter.get(`/me`, auth, getCurrentDoctor);
+doctorsRouter.get(`/:id`, getDoctorById);
 doctorsRouter.put(`/`, auth, updateDoctor);
 doctorsRouter.delete(`/`, auth, deleteDoctor);
 
