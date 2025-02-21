@@ -1,6 +1,10 @@
 import express from "express";
 import multer from "multer";
 import { uploadFile } from "../utils/uploadFile.js";
+import { protect } from "../middleware/authMiddleware.js";
+import { Pet } from "../models/pet.model.js";
+import { User } from "../models/user.model.js";
+import { Doctor } from "../models/doctor.model.js";
 
 const uploadRouter = express.Router();
 
@@ -12,7 +16,7 @@ const upload = multer({
   },
 }).single("file");
 
-uploadRouter.post("/", (req, res) => {
+const handleUpload = async (req, res, next) => {
   upload(req, res, async (err) => {
     if (err instanceof multer.MulterError) {
       return res.status(400).json({ error: `Multer error: ${err.message}` });
@@ -26,11 +30,79 @@ uploadRouter.post("/", (req, res) => {
 
     try {
       const imageUrl = await uploadFile(req.file);
-      res.status(200).json({ imageUrl });
+      req.uploadedImageUrl = imageUrl;
+      next();
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
   });
-});
+};
+
+uploadRouter.post(
+  "/pets/:id/image",
+  protect,
+  handleUpload,
+  async (req, res) => {
+    try {
+      const updatedPet = await Pet.findByIdAndUpdate(
+        req.params.id,
+        { imageUrl: req.uploadedImageUrl },
+        { new: true }
+      );
+      if (!updatedPet) {
+        return res.status(404).json({ error: "Pet not found" });
+      }
+      res.status(200).json({ imageUrl: req.uploadedImageUrl, pet: updatedPet });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+);
+
+uploadRouter.post(
+  "/users/:id/image",
+  protect,
+  handleUpload,
+  async (req, res) => {
+    try {
+      const updatedUser = await User.findByIdAndUpdate(
+        req.params.id,
+        { imageUrl: req.uploadedImageUrl },
+        { new: true }
+      );
+      if (!updatedUser) {
+        return res.status(404).json({ error: "User not found" });
+      }
+      res
+        .status(200)
+        .json({ imageUrl: req.uploadedImageUrl, user: updatedUser });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+);
+
+uploadRouter.post(
+  "/doctors/:id/image",
+  protect,
+  handleUpload,
+  async (req, res) => {
+    try {
+      const updatedDoctor = await Doctor.findByIdAndUpdate(
+        req.params.id,
+        { imageUrl: req.uploadedImageUrl },
+        { new: true }
+      );
+      if (!updatedDoctor) {
+        return res.status(404).json({ error: "Doctor not found" });
+      }
+      res
+        .status(200)
+        .json({ imageUrl: req.uploadedImageUrl, doctor: updatedDoctor });
+    } catch (error) {
+      res.status(400).json({ error: error.message });
+    }
+  }
+);
 
 export default uploadRouter;
