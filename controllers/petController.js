@@ -2,8 +2,6 @@ import Pet from "../models/Pet.js";
 import ErrorResponse from "../utils/ErrorResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
-
-
 export const getMyPets = asyncHandler(async (req, res, next) => {
   const userId = req.session.user.id;
   const pets = await Pet.find({ ownerId: userId });
@@ -15,7 +13,6 @@ export const getMyPets = asyncHandler(async (req, res, next) => {
   res.status(200).json(pets);
 });
 
-
 export const getPetById = asyncHandler(async (req, res, next) => {
   const pet = await Pet.findById(req.params.id);
   if (!pet) {
@@ -26,7 +23,7 @@ export const getPetById = asyncHandler(async (req, res, next) => {
 
 // Create a new pet
 export const createPet = asyncHandler(async (req, res, next) => {
-  const ownerId = req._;
+  const ownerId = req.session.user.id;
   const { name, species, breed, age, image, additionalNotes } = req.body;
 
   const newPet = new Pet({
@@ -36,7 +33,7 @@ export const createPet = asyncHandler(async (req, res, next) => {
     age,
     image,
     additionalNotes,
-    ownerId
+    ownerId,
   });
 
   await newPet.save();
