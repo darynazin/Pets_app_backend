@@ -2,8 +2,6 @@ import Pet from "../models/Pet.js";
 import ErrorResponse from "../utils/ErrorResponse.js";
 import asyncHandler from "../utils/asyncHandler.js";
 
-
-
 export const getMyPets = asyncHandler(async (req, res, next) => {
   const userId = req.session.user.id;
   const pets = await Pet.find({ ownerId: userId });
@@ -14,7 +12,6 @@ export const getMyPets = asyncHandler(async (req, res, next) => {
 
   res.status(200).json(pets);
 });
-
 
 export const getPetById = asyncHandler(async (req, res, next) => {
   const pet = await Pet.findById(req.params.id);
@@ -36,7 +33,7 @@ export const createPet = asyncHandler(async (req, res, next) => {
     age,
     image,
     additionalNotes,
-    ownerId
+    ownerId,
   });
 
   await newPet.save();
@@ -58,4 +55,21 @@ export const updatePet = asyncHandler(async (req, res, next) => {
   }
 
   res.status(200).json({ message: "Pet updated successfully", updatedPet });
+});
+
+// Delete Pet
+export const deletePet = asyncHandler(async (req, res, next) => {
+  const pet = await Pet.findById(req.params.id);
+
+  if (!pet) {
+    throw new ErrorResponse("Pet not found", 404);
+  }
+
+  if (pet.ownerId.toString() !== req.session.user.id) {
+    throw new ErrorResponse("Not authorized to delete this pet", 403);
+  }
+
+  await Pet.findByIdAndDelete(req.params.id);
+
+  res.status(200).json({ message: "Pet deleted successfully" });
 });

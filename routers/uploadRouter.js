@@ -58,13 +58,13 @@ uploadRouter.post("/users/:id/image", auth, handleUpload, async (req, res) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(
       req.params.id,
-      { imageUrl: req.uploadedImageUrl },
+      { image: req.uploadedImageUrl },
       { new: true }
     );
     if (!updatedUser) {
       return res.status(404).json({ error: "User not found" });
     }
-    res.status(200).json({ imageUrl: req.uploadedImageUrl, user: updatedUser });
+    res.status(200).json({ image: req.uploadedImageUrl, user: updatedUser });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
@@ -78,7 +78,7 @@ uploadRouter.post(
     try {
       const updatedDoctor = await Doctor.findByIdAndUpdate(
         req.params.id,
-        { imageUrl: req.uploadedImageUrl },
+        { image: req.uploadedImageUrl },
         { new: true }
       );
       if (!updatedDoctor) {
@@ -86,7 +86,7 @@ uploadRouter.post(
       }
       res
         .status(200)
-        .json({ imageUrl: req.uploadedImageUrl, doctor: updatedDoctor });
+        .json({ image: req.uploadedImageUrl, doctor: updatedDoctor });
     } catch (error) {
       res.status(400).json({ error: error.message });
     }
