@@ -21,8 +21,7 @@ export const getDoctorById = asyncHandler(async (req, res, next) => {
 
 // Get doctor by ID
 export const getCurrentDoctor = asyncHandler(async (req, res, next) => {
-  const doctor = await Doctor.findById(req.user._id);
-  console.log(req.user._id);
+  const doctor = await Doctor.findById(req.session.user.id);
   if (!doctor) {
     throw new ErrorResponse("Doctor not found", 404);
   }
@@ -41,7 +40,7 @@ export const createDoctor = asyncHandler(async (req, res, next) => {
     password: hashedPassword,
     image,
     address,
-    phoneNumber
+    phoneNumber,
   });
 
   await newDoctor.save();
@@ -114,7 +113,9 @@ export const loginDoctor = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse("Invalid credentials", 401));
   }
 
-  const token = jwt.sign({ id: doctor._id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+  const token = jwt.sign({ id: doctor._id }, process.env.JWT_SECRET, {
+    expiresIn: "30d",
+  });
 
   const isProduction = process.env.NODE_ENV === "production";
   const cookieOptions = {
@@ -130,14 +131,13 @@ export const loginDoctor = asyncHandler(async (req, res, next) => {
     email: doctor.email,
     image: doctor.image,
   });
-  
 });
 
 // Doctor Logout
 export const logoutDoctor = (req, res) => {
   res.clearCookie("token", {
     httpOnly: true,
-    sameSite: "lax", 
+    sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
   });
 

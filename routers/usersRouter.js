@@ -8,6 +8,7 @@ import {
   deleteUser,
   loginUser,
   logoutUser,
+  checkSession,
 } from '../controllers/userController.js';
 
 import { auth } from '../middleware/authMiddleware.js';
@@ -18,6 +19,7 @@ usersRouter.post(`/`, createUser);
 usersRouter.post(`/login`, loginUser);
 usersRouter.use(auth);
 usersRouter.post(`/logout`, logoutUser);
+usersRouter.get(`/session`, auth, checkSession);
 usersRouter.get(`/`, getUsers);
 usersRouter.get(`/me`, getUserById);
 usersRouter.put(`/`, updateUser);

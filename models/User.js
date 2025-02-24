@@ -6,7 +6,12 @@ const userSchema = new Schema({
     type: String,
     required: true,
     unique: true,
-    match: /^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/,
+    validate: {
+      validator: function(v) {
+        return v.includes('@');
+      },
+      message: props => `${props.value} is not a valid email! It must contain "@"`
+    }
   },
   password: {
     type: String,

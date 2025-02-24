@@ -3,25 +3,27 @@ import ErrorResponse from "../utils/ErrorResponse.js";
 import Appointment from "../models/Appointment.js";
 
 export const getUserAppointments = asyncHandler(async (req, res, next) => {
-  const userAppointments = await Appointment.find({ userId: req.user._id })
+  const userAppointments = await Appointment.find({
+    userId: req.session.user.id,
+  })
     .populate({
-      path: 'petId',
-      select: 'name',
+      path: "petId",
+      select: "name",
     })
     .populate({
-      path: 'doctorId',
-      select: 'name',
+      path: "doctorId",
+      select: "name",
     });
 
   if (!userAppointments || userAppointments.length === 0) {
-    return res.status(404).json({ message: "No appointments found" });
+    return res.status(200).json([]);
   }
 
   res.status(200).json(userAppointments);
 });
 
 export const createAppointment = asyncHandler(async (req, res, next) => {
-  const userId = req.user._id;
+  const userId = req.session.user.id;
 
   const { doctorId, date, timeSlot, petId } = req.body;
 
@@ -49,7 +51,7 @@ export const updateAppointment = asyncHandler(async (req, res, next) => {
     return next(new ErrorResponse("Appointment not found", 404));
   }
 
-  if (appointment.userId.toString() !== req.user._id.toString()) {
+  if (appointment.userId.toString() !== req.session.user.id.toString()) {
     return next(
       new ErrorResponse("Unauthorized to update this appointment", 403)
     );
@@ -67,13 +69,12 @@ export const updateAppointment = asyncHandler(async (req, res, next) => {
 export const deleteAppointment = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
 
-  console.log(id);
   const appointment = await Appointment.findById(id);
   if (!appointment) {
     return next(new ErrorResponse("Appointment ID is required", 404));
   }
 
-  if (appointment.userId.toString() !== req.user._id.toString()) {
+  if (appointment.userId.toString() !== req.session.user.id.toString()) {
     return next(
       new ErrorResponse("Unauthorized to delete this appointment", 403)
     );
@@ -88,9 +89,8 @@ export const getDoctorAppointments = asyncHandler(async (req, res, next) => {
   const doctorId = req.params.doctorId;
   const doctorAppointments = await Appointment.find({ doctorId });
 
-
   if (!doctorAppointments || doctorAppointments.length === 0) {
-    return res.status(404).json({ message: "No appointments found" });
+    return res.status(200).json([]);
   }
 
   res.status(200).json(doctorAppointments);
