@@ -56,3 +56,20 @@ export const updatePet = asyncHandler(async (req, res, next) => {
 
   res.status(200).json({ message: "Pet updated successfully", updatedPet });
 });
+
+// Delete Pet
+export const deletePet = asyncHandler(async (req, res, next) => {
+  const pet = await Pet.findById(req.params.id);
+
+  if (!pet) {
+    throw new ErrorResponse("Pet not found", 404);
+  }
+
+  if (pet.ownerId.toString() !== req.session.user.id) {
+    throw new ErrorResponse("Not authorized to delete this pet", 403);
+  }
+
+  await Pet.findByIdAndDelete(req.params.id);
+
+  res.status(200).json({ message: "Pet deleted successfully" });
+});
