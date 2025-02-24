@@ -29,8 +29,8 @@ const handleUpload = async (req, res, next) => {
     }
 
     try {
-      const imageUrl = await uploadFile(req.file);
-      req.uploadedImageUrl = imageUrl;
+      const image = await uploadFile(req.file);
+      req.uploadedImageUrl = image;
       next();
     } catch (error) {
       res.status(400).json({ error: error.message });
@@ -42,13 +42,13 @@ uploadRouter.post("/pets/:id/image", auth, handleUpload, async (req, res) => {
   try {
     const updatedPet = await Pet.findByIdAndUpdate(
       req.params.id,
-      { imageUrl: req.uploadedImageUrl },
+      { image: req.uploadedImageUrl },
       { new: true }
     );
     if (!updatedPet) {
       return res.status(404).json({ error: "Pet not found" });
     }
-    res.status(200).json({ imageUrl: req.uploadedImageUrl, pet: updatedPet });
+    res.status(200).json({ image: req.uploadedImageUrl, pet: updatedPet });
   } catch (error) {
     res.status(400).json({ error: error.message });
   }
