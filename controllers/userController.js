@@ -3,8 +3,6 @@ import ErrorResponse from "../utils/ErrorResponse.js";
 import bcrypt from "bcrypt";
 import asyncHandler from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
-import Appointment from "../models/Appointment.js";
-
 
 // Get all users
 export const getUsers = asyncHandler(async (req, res, next) => {
@@ -14,7 +12,8 @@ export const getUsers = asyncHandler(async (req, res, next) => {
 
 // Get user by ID
 export const getUserById = asyncHandler(async (req, res, next) => {
-  const user = await User.findById(req.user._id);
+  const id = req.session.user.id;
+  const user = await User.findById(id);
   if (!user) {
     throw new ErrorResponse("User not found", 404);
   }
@@ -58,7 +57,7 @@ export const createUser = asyncHandler(async (req, res, next) => {
 
 // Update user by ID
 export const updateUser = asyncHandler(async (req, res, next) => {
-  const userId = req.user._id;
+  const userId = req.session.user.id;
   const updates = req.body;
 
   if (updates.password) {
@@ -79,14 +78,14 @@ export const updateUser = asyncHandler(async (req, res, next) => {
 
 // Delete user by ID
 export const deleteUser = asyncHandler(async (req, res, next) => {
-  const userId = req.user._id;
+  const userId = req.params.id;
 
   const deletedUser = await User.findByIdAndDelete(userId);
   if (!deletedUser) {
-    throw new ErrorResponse("User not found", 404);
+    throw new ErrorResponse('User not found', 404);
   }
 
-  res.status(200).json({ message: "User deleted successfully" });
+  res.status(204).json({ message: 'User deleted successfully' });
 });
 
 // User Login
@@ -95,17 +94,27 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 
   const user = await User.findOne({ email });
   if (!user) {
-    return next(new ErrorResponse("Invalid credentials", 401));
+    return next(new ErrorResponse("Invalid email or password", 401));
   }
 
   const isMatch = await bcrypt.compare(password, user.password);
   console.log("Password match:", isMatch);
 
   if (!isMatch) {
-    return next(new ErrorResponse("Invalid credentials", 401));
+    return next(new ErrorResponse("Invalid email or password", 401));
   }
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "30d" });
+  req.session.user = {
+    id: user._id,
+    name: user.name,
+    email: user.email,
+    image: user.image,
+  };
+  req.session.userId = user._id;
+
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: "30d",
+  });
 
   const isProduction = process.env.NODE_ENV === "production";
   const cookieOptions = {
@@ -114,23 +123,28 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     secure: isProduction,
   };
 
-  res.cookie("token", token, cookieOptions);
-  res.status(200).json({
-    success: true,
-    username: user.username,
-    email: user.email,
-    image: user.image,
-  });
-  
+  res
+    .cookie("token", token, cookieOptions)
+    .status(200)
+    .json({ message: "Login successful", user: req.session.user });
 });
 
-// User Logout
-export const logoutUser = (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: "lax", 
-    secure: process.env.NODE_ENV === "production",
-  });
+export const checkSession = (req, res) => {
+  console.log(123);
+  if (req.session.user) {
+    res.json({ authenticated: true, user: req.session.user });
+  } else {
+    res.json({ authenticated: false });
+  }
+};
 
-  res.status(200).json({ message: "Logout successful" });
+export const logoutUser = (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ message: "Logout failed" });
+    }
+    res.clearCookie("connect.sid");
+    res.clearCookie("token");
+    res.status(200).json({ message: "Logout successful" });
+  });
 };

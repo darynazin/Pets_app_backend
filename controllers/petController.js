@@ -5,8 +5,13 @@ import asyncHandler from "../utils/asyncHandler.js";
 
 
 export const getMyPets = asyncHandler(async (req, res, next) => {
-  const userId = req.user._id;
+  const userId = req.session.user.id;
   const pets = await Pet.find({ ownerId: userId });
+
+  if (!pets || pets.length === 0) {
+    return res.json([]);
+  }
+
   res.status(200).json(pets);
 });
 
@@ -21,7 +26,7 @@ export const getPetById = asyncHandler(async (req, res, next) => {
 
 // Create a new pet
 export const createPet = asyncHandler(async (req, res, next) => {
-  const ownerId = req.user.id;
+  const ownerId = req._;
   const { name, species, breed, age, image, additionalNotes } = req.body;
 
   const newPet = new Pet({
@@ -42,7 +47,6 @@ export const createPet = asyncHandler(async (req, res, next) => {
 // Update pet by ID
 export const updatePet = asyncHandler(async (req, res, next) => {
   const update = req.body;
-  console.log(update);
 
   const updatedPet = await Pet.findByIdAndUpdate(update._id, update, {
     new: true,
