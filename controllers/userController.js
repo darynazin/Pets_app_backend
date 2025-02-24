@@ -130,12 +130,11 @@ export const loginUser = asyncHandler(async (req, res, next) => {
 });
 
 export const checkSession = (req, res) => {
-  console.log(123);
-  if (req.session.user) {
-    res.json({ authenticated: true, user: req.session.user });
-  } else {
-    res.json({ authenticated: false });
+  if (req.session?.user) {
+    return res.json({ authenticated: true, user: req.session.user });
   }
+
+  return res.json({ authenticated: false });
 };
 
 export const logoutUser = (req, res) => {
