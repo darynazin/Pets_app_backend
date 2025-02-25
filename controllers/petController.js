@@ -23,14 +23,17 @@ export const getPetById = asyncHandler(async (req, res, next) => {
 
 // Create a new pet
 export const createPet = asyncHandler(async (req, res, next) => {
+  console.log("Session:", req.session); // Add this line
+  console.log("User:", req.session?.user); // Add this line
+
   const ownerId = req.session.user.id;
-  const { name, species, breed, age, image, additionalNotes } = req.body;
+  const { name, species, breed, birthDate, image, additionalNotes } = req.body;
 
   const newPet = new Pet({
     name,
     species,
     breed,
-    age,
+    birthDate,
     image,
     additionalNotes,
     ownerId,
