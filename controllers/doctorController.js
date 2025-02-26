@@ -28,11 +28,32 @@ export const getCurrentDoctor = asyncHandler(async (req, res, next) => {
   res.status(200).json(doctor);
 });
 
-// Create a new doctor
 export const createDoctor = asyncHandler(async (req, res, next) => {
   const { name, email, password, image, address, phoneNumber } = req.body;
 
   const hashedPassword = await bcrypt.hash(password, 10);
+
+  const response = await fetch(
+    `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+      address
+    )}&key=${process.env.MAPS_API_KEY}`
+  );
+
+  const data = await response.json();
+
+  if (data.status !== "OK" || data.results.length === 0) {
+    return res
+      .status(400)
+      .json({ error: "Invalid address. Could not fetch coordinates." });
+  }
+
+  const { lat, lng } = data.results[0].geometry.location;
+
+  if (!lat || !lng) {
+    return res
+      .status(400)
+      .json({ error: "Failed to retrieve valid coordinates." });
+  }
 
   const newDoctor = new Doctor({
     name,
@@ -41,17 +62,14 @@ export const createDoctor = asyncHandler(async (req, res, next) => {
     image,
     address,
     phoneNumber,
+    location: { lat, lng },
   });
 
   await newDoctor.save();
 
-  const token = jwt.sign(
-    {
-      id: newDoctor._id,
-    },
-    process.env.JWT_SECRET,
-    { expiresIn: String(process.env.JWT_EXPIRES_IN) }
-  );
+  const token = jwt.sign({ id: newDoctor._id }, process.env.JWT_SECRET, {
+    expiresIn: String(process.env.JWT_EXPIRES_IN),
+  });
 
   const isProduction = process.env.NODE_ENV === "production";
   const cookieOptions = {
@@ -64,13 +82,39 @@ export const createDoctor = asyncHandler(async (req, res, next) => {
   res.status(201).json(newDoctor);
 });
 
-// Update doctor by ID
 export const updateDoctor = asyncHandler(async (req, res, next) => {
   const doctorId = req.doctor._id;
-  const updates = req.body;
+  const updates = { ...req.body };
 
   if (updates.password) {
     updates.password = await bcrypt.hash(updates.password, 10);
+  }
+
+  if (updates.address) {
+    console.log("Address update detected:", updates.address);
+
+    try {
+      const response = await fetch(
+        `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+          updates.address
+        )}&key=${process.env.MAPS_KEY}`
+      );
+
+      const data = await response.json();
+      console.log("Google API Response:", JSON.stringify(data, null, 2));
+
+      if (data.status === "OK" && data.results.length > 0) {
+        const { lat, lng } = data.results[0].geometry.location;
+        updates.location = { lat, lng };
+      } else {
+        return res
+          .status(400)
+          .json({ error: "Invalid address. Could not fetch coordinates." });
+      }
+    } catch (error) {
+      console.error("Error fetching new location:", error);
+      return res.status(500).json({ error: "Failed to update location." });
+    }
   }
 
   const updatedDoctor = await Doctor.findByIdAndUpdate(doctorId, updates, {
@@ -85,7 +129,6 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
   res.status(200).json(updatedDoctor);
 });
 
-// Delete doctor by ID
 export const deleteDoctor = asyncHandler(async (req, res, next) => {
   const doctorId = req.doctor._id;
 

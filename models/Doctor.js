@@ -16,6 +16,10 @@ const doctorSchema = new Schema({
   image: { type: String, required: false },
   address: { type: String, required: true },
   phoneNumber: { type: String, required: true },
+  location: {
+    lat: { type: Number, required: true },
+    lng: { type: Number, required: true }
+  }
 });
 
 export default model("Doctor", doctorSchema);
