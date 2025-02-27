@@ -83,7 +83,7 @@ export const createDoctor = asyncHandler(async (req, res, next) => {
 });
 
 export const updateDoctor = asyncHandler(async (req, res, next) => {
-  const doctorId = req.doctor._id;
+  const doctorId = req.body._id;
   const updates = { ...req.body };
 
   if (updates.password) {
@@ -97,7 +97,7 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
           updates.address
-        )}&key=${process.env.MAPS_KEY}`
+        )}&key=${process.env.MAPS_API_KEY}`
       );
 
       const data = await response.json();
@@ -109,7 +109,7 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
       } else {
         return res
           .status(400)
-          .json({ error: "Invalid address. Could not fetch coordinates." });
+          .json({ error: "Invalid address. Could not fetch coordinates.", error });
       }
     } catch (error) {
       console.error("Error fetching new location:", error);
@@ -143,8 +143,8 @@ export const deleteDoctor = asyncHandler(async (req, res, next) => {
 // Doctor Login
 export const loginDoctor = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-
   const doctor = await Doctor.findOne({ email });
+  
   if (!doctor) {
     return next(new ErrorResponse("Invalid credentials", 401));
   }
@@ -155,6 +155,14 @@ export const loginDoctor = asyncHandler(async (req, res, next) => {
   if (!isMatch) {
     return next(new ErrorResponse("Invalid credentials", 401));
   }
+
+  req.session.user = {
+    id: doctor._id,
+    name: doctor.name,
+    email: doctor.email,
+    image: doctor.image,
+  };
+  req.session.userId = doctor._id;
 
   const token = jwt.sign({ id: doctor._id }, process.env.JWT_SECRET, {
     expiresIn: "30d",
@@ -167,22 +175,29 @@ export const loginDoctor = asyncHandler(async (req, res, next) => {
     secure: isProduction,
   };
 
-  res.cookie("token", token, cookieOptions);
-  res.status(200).json({
-    success: true,
-    doctorname: doctor.doctorname,
-    email: doctor.email,
-    image: doctor.image,
-  });
+  res
+  .cookie("token", token, cookieOptions)
+  .status(200)
+  .json({ message: "Login successful", user: req.session.user });
 });
+
+
+export const checkSession = (req, res) => {
+  if (req.session?.user) {
+    return res.json({ authenticated: true, user: req.session.user });
+  }
+
+  return res.json({ authenticated: false });
+};
 
 // Doctor Logout
 export const logoutDoctor = (req, res) => {
-  res.clearCookie("token", {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
+  req.session.destroy((err) => {
+    if (err) {
+      return res.status(500).json({ message: "Logout failed" });
+    }
+    res.clearCookie("connect.sid");
+    res.clearCookie("token");
+    res.status(200).json({ message: "Logout successful" });
   });
-
-  res.status(200).json({ message: "Logout successful" });
 };

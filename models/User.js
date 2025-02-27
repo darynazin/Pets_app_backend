@@ -20,6 +20,7 @@ const userSchema = new Schema({
   },
   image: { type: String, required: false },
   petsId: [{ type: Schema.Types.ObjectId, ref: "Pet", default: [] }],
+  role: { type: String, default: "user" },
 });
 
 export default model("User", userSchema);
