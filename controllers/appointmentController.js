@@ -44,7 +44,7 @@ console.log("appointment", appointment)
 export const createAppointment = asyncHandler(async (req, res, next) => {
   const userId = req.session.user.id;
 
-  const { doctorId, date, timeSlot, petId } = req.body;
+  const { doctorId, date, timeSlot, petId, additionalNotes } = req.body;
 
   if (!doctorId || !date || !timeSlot || !petId) {
     return next(new ErrorResponse("All fields are required", 400));
@@ -56,6 +56,7 @@ export const createAppointment = asyncHandler(async (req, res, next) => {
     date,
     timeSlot,
     petId,
+    additionalNotes,
   });
 
   await newAppointment.save();
@@ -64,7 +65,7 @@ export const createAppointment = asyncHandler(async (req, res, next) => {
 });
 
 export const updateAppointment = asyncHandler(async (req, res, next) => {
-  const { _id, date, timeSlot, petId } = req.body;
+  const { _id, userId, doctorId, date, timeSlot, petId, additionalNotes } = req.body;
   const appointment = await Appointment.findById(_id);
   if (!appointment) {
     return next(new ErrorResponse("Appointment not found", 404));
@@ -78,7 +79,7 @@ export const updateAppointment = asyncHandler(async (req, res, next) => {
 
   const updatedAppointment = await Appointment.findByIdAndUpdate(
     _id,
-    { date, timeSlot, petId },
+    { userId, doctorId, date, timeSlot, petId, additionalNotes },
     { new: true }
   );
 
