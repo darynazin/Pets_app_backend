@@ -94,19 +94,13 @@ export const getAvailableTimeSlots = asyncHandler(async (req, res, next) => {
   );
 
   res.status(200).json(availableSlots);
-}); // change end
+});
+
 export const createAppointment = asyncHandler(async (req, res, next) => {
   const userId = req.session.user.id;
 
-  const {
-    doctorId,
-    date,
-    timeSlot,
-    petId,
-    additionalNotes,
-    visitType,
-    additionalNotes,
-  } = req.body;
+  const { doctorId, date, timeSlot, petId, visitType, additionalNotes } =
+    req.body;
 
   if (!doctorId || !date || !timeSlot || !petId || !visitType) {
     return next(new ErrorResponse("All fields are required", 400));
