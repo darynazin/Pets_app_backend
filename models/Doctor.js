@@ -19,7 +19,8 @@ const doctorSchema = new Schema({
   location: {
     lat: { type: Number, required: true },
     lng: { type: Number, required: true }
-  }
+  },
+  role: { type: String, default: "doctor" },
 });
 
 export default model("Doctor", doctorSchema);
