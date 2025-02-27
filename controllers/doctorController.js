@@ -83,7 +83,7 @@ export const createDoctor = asyncHandler(async (req, res, next) => {
 });
 
 export const updateDoctor = asyncHandler(async (req, res, next) => {
-  const doctorId = req.doctor._id;
+  const doctorId = req.body._id;
   const updates = { ...req.body };
 
   if (updates.password) {
@@ -97,7 +97,7 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
           updates.address
-        )}&key=${process.env.MAPS_KEY}`
+        )}&key=${process.env.MAPS_API_KEY}`
       );
 
       const data = await response.json();
@@ -109,7 +109,7 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
       } else {
         return res
           .status(400)
-          .json({ error: "Invalid address. Could not fetch coordinates." });
+          .json({ error: "Invalid address. Could not fetch coordinates.", error });
       }
     } catch (error) {
       console.error("Error fetching new location:", error);
