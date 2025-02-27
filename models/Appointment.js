@@ -6,7 +6,7 @@ const appointmentSchema = new Schema({
   date: { type: String, required: true },
   timeSlot: { type: String, required: true },
   petId: { type: Schema.Types.ObjectId, ref: "Pet", required: true },
-  additionalNotes: { type: String, required: false },
+  additionalNotes: { type: String, default: "" },
 });
 
 export default model("Appointment", appointmentSchema);
