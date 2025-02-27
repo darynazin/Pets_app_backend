@@ -1,4 +1,5 @@
-import { Router } from 'express';
+import { Router } from "express";
+import { validateTimeSlot } from "../middleware/validateTimeSlot.js";
 
 import {
   getUserAppointments,
@@ -6,16 +7,18 @@ import {
   createAppointment,
   updateAppointment,
   deleteAppointment,
-} from '../controllers/appointmentController.js';
+  getAvailableTimeSlots,
+} from "../controllers/appointmentController.js";
 
-import { auth } from '../middleware/authMiddleware.js';
+import { auth } from "../middleware/authMiddleware.js";
 
 const appointmentsRouter = Router();
 appointmentsRouter.use(auth);
+appointmentsRouter.get(`/available`, getAvailableTimeSlots);
 appointmentsRouter.get(`/`, getUserAppointments);
 appointmentsRouter.get(`/:doctorId`, getDoctorAppointments);
-appointmentsRouter.post(`/`, createAppointment);
-appointmentsRouter.put(`/`, updateAppointment);
+appointmentsRouter.post(`/`, validateTimeSlot, createAppointment);
+appointmentsRouter.put(`/`, validateTimeSlot, updateAppointment);
 appointmentsRouter.delete(`/:id`, deleteAppointment);
 
 export default appointmentsRouter;
