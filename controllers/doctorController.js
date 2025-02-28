@@ -84,10 +84,20 @@ export const createDoctor = asyncHandler(async (req, res, next) => {
 
 export const updateDoctor = asyncHandler(async (req, res, next) => {
   const doctorId = req.body._id;
-  const updates = { ...req.body };
+  const { password, newPassword, ...updates } = req.body;
+  const image = req.file;
 
-  if (updates.password) {
-    updates.password = await bcrypt.hash(updates.password, 10);
+  const doctor = await Doctor.findById(doctorId);
+  if (!doctor) {
+    return next(new ErrorResponse("Doctor not found", 404));
+  }
+
+  if (password && newPassword) {
+    const isMatch = await bcrypt.compare(password, doctor.password);
+    if (!isMatch) {
+      return res.status(400).json({ error: "Current password is incorrect" });
+    }
+    updates.password = await bcrypt.hash(newPassword, 10);
   }
 
   if (updates.address) {
@@ -109,11 +119,34 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
       } else {
         return res
           .status(400)
-          .json({ error: "Invalid address. Could not fetch coordinates.", error });
+          .json({ error: "Invalid address. Could not fetch coordinates." });
       }
     } catch (error) {
       console.error("Error fetching new location:", error);
       return res.status(500).json({ error: "Failed to update location." });
+    }
+  }
+
+  if (image) {
+    try {
+      const blob = bucket.file(`images/${doctor.name}/${Date.now()}_${image.originalname}`);
+      const blobStream = blob.createWriteStream({
+        metadata: { contentType: image.mimetype },
+      });
+
+      await new Promise((resolve, reject) => {
+        blobStream.on("error", (err) => reject(new CustomError("Image upload failed", 500)));
+        blobStream.on("finish", resolve);
+        blobStream.end(image.buffer);
+      });
+
+      const signedUrl = await blob.getSignedUrl({
+        action: "read",
+        expires: "03-01-2500",
+      });
+      updates.image = signedUrl[0];
+    } catch (error) {
+      return next(new CustomError("Image upload failed", 500));
     }
   }
 
@@ -123,15 +156,15 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
   });
 
   if (!updatedDoctor) {
-    throw new ErrorResponse("Doctor not found", 404);
+    return next(new ErrorResponse("Doctor not found", 404));
   }
 
   res.status(200).json(updatedDoctor);
 });
 
-export const deleteDoctor = asyncHandler(async (req, res, next) => {
-  const doctorId = req.doctor._id;
 
+export const deleteDoctor = asyncHandler(async (req, res, next) => {
+  const doctorId = req.user.id;
   const deletedDoctor = await Doctor.findByIdAndDelete(doctorId);
   if (!deletedDoctor) {
     throw new ErrorResponse("Doctor not found", 404);
@@ -161,6 +194,8 @@ export const loginDoctor = asyncHandler(async (req, res, next) => {
     name: doctor.name,
     email: doctor.email,
     image: doctor.image,
+    address: doctor.address,
+    phoneNumber: doctor.phoneNumber,
   };
   req.session.userId = doctor._id;
 
