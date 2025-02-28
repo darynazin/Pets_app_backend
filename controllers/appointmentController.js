@@ -98,7 +98,7 @@ export const getAvailableTimeSlots = asyncHandler(async (req, res, next) => {
 
 export const createAppointment = asyncHandler(async (req, res, next) => {
   const userId = req.session.user.id;
-
+  console.log("req.body", req.body);
   const { doctorId, date, timeSlot, petId, visitType, additionalNotes } =
     req.body;
 
@@ -122,6 +122,8 @@ export const createAppointment = asyncHandler(async (req, res, next) => {
 export const updateAppointment = asyncHandler(async (req, res, next) => {
   const { _id, userId, doctorId, date, timeSlot, petId, additionalNotes } =
     req.body;
+
+    console.log("req.body", req.body);
   const appointment = await Appointment.findById(_id);
   if (!appointment) {
     return next(new ErrorResponse("Appointment not found", 404));
