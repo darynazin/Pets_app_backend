@@ -10,6 +10,7 @@ export const getDoctors = asyncHandler(async (req, res, next) => {
   res.status(200).json(doctors);
 });
 
+// Get doctor by ID
 export const getDoctorById = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const doctor = await Doctor.findById(id);
@@ -196,6 +197,7 @@ export const loginDoctor = asyncHandler(async (req, res, next) => {
     image: doctor.image,
     address: doctor.address,
     phoneNumber: doctor.phoneNumber,
+    role: doctor.role,
   };
   req.session.userId = doctor._id;
 
@@ -219,6 +221,7 @@ export const loginDoctor = asyncHandler(async (req, res, next) => {
 
 export const checkSession = (req, res) => {
   if (req.session?.user) {
+    console.log("Session user:", req.session.user);
     return res.json({ authenticated: true, user: req.session.user });
   }
 

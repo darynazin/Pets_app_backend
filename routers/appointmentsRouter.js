@@ -20,7 +20,7 @@ appointmentsRouter.get(`/available`, getAvailableTimeSlots);
 appointmentsRouter.get(`/`, getUserAppointments);
 appointmentsRouter.get(`/:doctorId`, getDoctorAppointments);
 appointmentsRouter.post(`/`, validateTimeSlot, createAppointment);
-appointmentsRouter.put(`/`, validateTimeSlot, updateAppointment);
+appointmentsRouter.put(`/`, updateAppointment);
 appointmentsRouter.delete(`/:id`, deleteAppointment);
 appointmentsRouter.get(`/one/:id`, getAppointment);
 

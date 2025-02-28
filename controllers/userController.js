@@ -109,6 +109,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     name: user.name,
     email: user.email,
     image: user.image,
+    role: user.role,
   };
   req.session.userId = user._id;
 
