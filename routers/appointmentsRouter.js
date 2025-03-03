@@ -18,7 +18,7 @@ const appointmentsRouter = Router();
 appointmentsRouter.use(auth);
 appointmentsRouter.get(`/available`, getAvailableTimeSlots);
 appointmentsRouter.get(`/`, getUserAppointments);
-appointmentsRouter.get(`/:doctorId`, getDoctorAppointments);
+appointmentsRouter.get(`/doctor`, getDoctorAppointments);
 appointmentsRouter.post(`/`, validateTimeSlot, createAppointment);
 appointmentsRouter.put(`/`, updateAppointment);
 appointmentsRouter.delete(`/:id`, deleteAppointment);

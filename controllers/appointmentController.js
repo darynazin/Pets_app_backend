@@ -145,27 +145,31 @@ export const updateAppointment = asyncHandler(async (req, res, next) => {
 });
 
 export const deleteAppointment = asyncHandler(async (req, res, next) => {
-  const { id } = req.params;
+  const { id } = req.session.user.id;
+  const appointmentId = req.params.id;
 
-  const appointment = await Appointment.findById(id);
+  const appointment = await Appointment.findById(appointmentId);
   if (!appointment) {
     return next(new ErrorResponse("Appointment ID is required", 404));
   }
 
-  if (appointment.userId.toString() !== req.session.user.id.toString()) {
-    return next(
-      new ErrorResponse("Unauthorized to delete this appointment", 403)
-    );
-  }
-
-  await Appointment.findByIdAndDelete(id);
+  await Appointment.findByIdAndDelete(appointmentId);
 
   res.status(200).json({ message: "Appointment deleted successfully" });
 });
 
 export const getDoctorAppointments = asyncHandler(async (req, res, next) => {
-  const doctorId = req.params.doctorId;
-  const doctorAppointments = await Appointment.find({ doctorId });
+  const doctorId = req.session.user.id;
+  const doctorAppointments = await Appointment.find({ doctorId, 
+  })
+  .populate({
+    path: "petId",
+    select: "name",
+  })
+  .populate({
+    path: "userId",
+    select: "name",
+   });
 
   if (!doctorAppointments || doctorAppointments.length === 0) {
     return res.status(200).json([]);
