@@ -1,4 +1,5 @@
 import { Schema, model } from "mongoose";
+import Appointment from "./Appointment.js";
 
 const doctorSchema = new Schema({
   name: { type: String, required: true },
@@ -21,6 +22,16 @@ const doctorSchema = new Schema({
     lng: { type: Number, required: true }
   },
   role: { type: String, default: "doctor" },
+});
+
+doctorSchema.pre("findOneAndDelete", async function (next) {
+  const doctor = await this.model.findOne(this.getFilter());
+
+  if (!doctor) return next();
+
+  await Appointment.deleteMany({ doctorId: doctor._id });
+
+  next();
 });
 
 export default model("Doctor", doctorSchema);
