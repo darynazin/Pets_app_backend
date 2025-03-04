@@ -8,6 +8,7 @@ import petsRouter from "./routers/petsRouter.js";
 import uploadRouter from "./routers/uploadRouter.js";
 import cookieParser from "cookie-parser";
 import { authSession } from './utils/session.js';
+import chatRouter from './routers/chatRouter.js';
 import cors from "cors";
 
 const port = process.env.PORT || 3000;
@@ -26,6 +27,7 @@ app.use("/doctors", doctorsRouter);
 app.use("/pets", petsRouter);
 app.use("/appointments", appointmentsRouter);
 app.use("/upload", uploadRouter);
+app.use('/api/v1/chat/completions', chatRouter);
 app.use("*", (req, res) => res.status(404).json({ error: "Not Found" }));
 app.use(errorHandler);
 
