@@ -13,7 +13,7 @@ export const createChat = async (req, res) => {
     const completion = await openai.chat.completions.create({
       messages: [
         { role:"system", content: "you are a helpful assistand that gives short and clear instruction of first aid for pets in 2-5 steps" },
-        { role:"user", content: request.message }
+        { role:"user", content: request.message.query }
       ],
       model: process.env.MODEL_NAME,
       temperature: 1,
