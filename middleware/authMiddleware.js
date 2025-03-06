@@ -17,7 +17,6 @@ export const auth = asyncHandler(async (req, res, next) => {
     (await User.findById(decoded.id)) || (await Doctor.findById(decoded.id));
 
   if (req.user) {
-    console.log("session user", req.session.user);
     return next();
   }  
   next();
