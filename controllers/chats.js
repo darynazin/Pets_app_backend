@@ -1,12 +1,13 @@
 import OpenAI from 'openai';
+import { AZURE_ENDPOINT, GITHUB_TOKEN, MODEL_NAME } from '../config/config.js';
 
 export const createChat = async (req, res) => {
   try {
     const request = req.body;
 
     const openai = new OpenAI({
-    baseURL: process.env.AZURE_ENDPOINT,
-    apiKey: process.env.GITHUB_TOKEN,
+    baseURL: AZURE_ENDPOINT,
+    apiKey: GITHUB_TOKEN,
   });
 
     const completion = await openai.chat.completions.create({
@@ -14,7 +15,7 @@ export const createChat = async (req, res) => {
         { role:"system", content: "You are a helpful assistant that provides short first-aid instructions for pet ownert befor going to the vet in 2-5 steps. Each step should start on a new line, without extra formatting." },
         { role:"user", content: request.message.query }
       ],
-      model: process.env.MODEL_NAME,
+      model: MODEL_NAME,
       temperature: 1,
       max_tokens: 4096,
       top_p: 1,

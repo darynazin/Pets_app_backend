@@ -3,6 +3,7 @@ import ErrorResponse from "../utils/ErrorResponse.js";
 import bcrypt from "bcrypt";
 import asyncHandler from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
+import { JWT_SECRET, JWT_EXPIRES_IN, NODE_ENV } from "../config/config.js";
 
 // Get all users
 export const getUsers = asyncHandler(async (req, res, next) => {
@@ -40,11 +41,11 @@ export const createUser = asyncHandler(async (req, res, next) => {
     {
       id: newUser._id,
     },
-    process.env.JWT_SECRET,
-    { expiresIn: String(process.env.JWT_EXPIRES_IN) }
+    JWT_SECRET,
+    { expiresIn: String(JWT_EXPIRES_IN) }
   );
 
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = NODE_ENV === "production";
   const cookieOptions = {
     httpOnly: true,
     sameSite: isProduction ? "None" : "Lax",
@@ -113,15 +114,16 @@ export const loginUser = asyncHandler(async (req, res, next) => {
   };
   req.session.userId = user._id;
 
-  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-    expiresIn: "30d",
+  const token = jwt.sign({ id: user._id }, JWT_SECRET, {
+    expiresIn: JWT_EXPIRES_IN,
   });
 
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = NODE_ENV === "production";
   const cookieOptions = {
     httpOnly: true,
     sameSite: isProduction ? "None" : "Lax",
     secure: isProduction,
+    maxAge: 24 * 60 * 60 * 1000,
   };
 
   res

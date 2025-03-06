@@ -10,13 +10,18 @@ import cookieParser from "cookie-parser";
 import { authSession } from './utils/session.js';
 import chatRouter from './routers/chatRouter.js';
 import cors from "cors";
-
-const port = process.env.PORT || 3000;
+import { PORT, CLIENT_URL } from "./config/config.js";
 
 const app = express();
+
+if (!PORT || !CLIENT_URL) {
+  console.error("Please provide PORT and CLIENT_URL");
+  process.exit(1);
+}
+
 app.use(
-  json(),
-  cors({ origin: process.env.CLIENT_URL, credentials: true }),
+  json({ limit: "50mb" }),
+  cors({ origin: CLIENT_URL, credentials: true }),
   cookieParser()
 );
 
@@ -31,4 +36,4 @@ app.use('/api/v1/chat/completions', chatRouter);
 app.use("*", (req, res) => res.status(404).json({ error: "Not Found" }));
 app.use(errorHandler);
 
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));

@@ -1,18 +1,16 @@
 import session from 'express-session';
 import MongoStore from 'connect-mongo';
-import { config } from 'dotenv';
-
-config();
+import { MONGO_URI, SESSION_SECRET, NODE_ENV } from '../config/config.js';
 
 export const authSession = session({
-  secret: process.env.SESSION_SECRET,
+  secret: SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+  store: MongoStore.create({ mongoUrl: MONGO_URI }),
   cookie: {
     maxAge: 1000 * 60 * 60,
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: NODE_ENV === 'production',
     sameSite: 'lax',
   },
 });
