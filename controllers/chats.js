@@ -3,7 +3,6 @@ import OpenAI from 'openai';
 export const createChat = async (req, res) => {
   try {
     const request = req.body;
-    console.log(request);
 
     const openai = new OpenAI({
     baseURL: process.env.AZURE_ENDPOINT,
@@ -12,7 +11,7 @@ export const createChat = async (req, res) => {
 
     const completion = await openai.chat.completions.create({
       messages: [
-        { role:"system", content: "you are a helpful assistand that gives short and clear instruction of first aid for pets in 2-5 steps" },
+        { role:"system", content: "You are a helpful assistant that provides short first-aid instructions for pet ownert befor going to the vet in 2-5 steps. Each step should start on a new line, without extra formatting." },
         { role:"user", content: request.message.query }
       ],
       model: process.env.MODEL_NAME,
