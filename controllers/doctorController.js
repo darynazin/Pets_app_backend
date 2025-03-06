@@ -3,6 +3,7 @@ import ErrorResponse from "../utils/ErrorResponse.js";
 import bcrypt from "bcrypt";
 import asyncHandler from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
+import { MAPS_API_KEY, JWT_SECRET, JWT_EXPIRES_IN, NODE_ENV } from "../config/config.js";
 
 // Get all doctors
 export const getDoctors = asyncHandler(async (req, res, next) => {
@@ -37,7 +38,7 @@ export const createDoctor = asyncHandler(async (req, res, next) => {
   const response = await fetch(
     `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
       address
-    )}&key=${process.env.MAPS_API_KEY}`
+    )}&key=${MAPS_API_KEY}`
   );
 
   const data = await response.json();
@@ -68,11 +69,12 @@ export const createDoctor = asyncHandler(async (req, res, next) => {
 
   await newDoctor.save();
 
-  const token = jwt.sign({ id: newDoctor._id }, process.env.JWT_SECRET, {
-    expiresIn: String(process.env.JWT_EXPIRES_IN),
+  const token = jwt.sign({ id: newDoctor._id }, JWT_SECRET, {
+    expiresIn: String(JWT_EXPIRES_IN),
   });
 
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = NODE_ENV === "production";
+
   const cookieOptions = {
     httpOnly: true,
     sameSite: isProduction ? "None" : "Lax",
@@ -108,7 +110,7 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
       const response = await fetch(
         `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
           updates.address
-        )}&key=${process.env.MAPS_API_KEY}`
+        )}&key=${MAPS_API_KEY}`
       );
 
       const data = await response.json();
@@ -201,11 +203,11 @@ export const loginDoctor = asyncHandler(async (req, res, next) => {
   };
   req.session.userId = doctor._id;
 
-  const token = jwt.sign({ id: doctor._id }, process.env.JWT_SECRET, {
+  const token = jwt.sign({ id: doctor._id }, JWT_SECRET, {
     expiresIn: "30d",
   });
 
-  const isProduction = process.env.NODE_ENV === "production";
+  const isProduction = NODE_ENV === "production";
   const cookieOptions = {
     httpOnly: true,
     sameSite: isProduction ? "None" : "Lax",
