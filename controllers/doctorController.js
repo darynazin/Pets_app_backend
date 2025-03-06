@@ -221,7 +221,6 @@ export const loginDoctor = asyncHandler(async (req, res, next) => {
 
 export const checkSession = (req, res) => {
   if (req.session?.user) {
-    console.log("Session user:", req.session.user);
     return res.json({ authenticated: true, user: req.session.user });
   }
 
