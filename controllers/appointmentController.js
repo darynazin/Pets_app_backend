@@ -25,6 +25,7 @@ export const getUserAppointments = asyncHandler(async (req, res, next) => {
 export const getAppointment = asyncHandler(async (req, res, next) => {
   const { id } = req.params;
   const appointment = await Appointment.findById(id)
+<<<<<<< Updated upstream
   .populate({
     path: "petId",
     select: "name",
@@ -34,6 +35,17 @@ export const getAppointment = asyncHandler(async (req, res, next) => {
     select: "name address",
   });
 console.log("appointment", appointment)
+=======
+    .populate({
+      path: "petId",
+      select: "name",
+    })
+    .populate({
+      path: "doctorId",
+      select: "name address image",
+    });
+  console.log("appointment", appointment);
+>>>>>>> Stashed changes
   if (!appointment) {
     return next(new ErrorResponse("Appointment not found", 404));
   }
