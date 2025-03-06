@@ -32,7 +32,7 @@ export const getAppointment = asyncHandler(async (req, res, next) => {
     })
     .populate({
       path: "doctorId",
-      select: "name address",
+      select: "name address image",
     });
   console.log("appointment", appointment);
   if (!appointment) {
