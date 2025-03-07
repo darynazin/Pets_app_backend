@@ -115,7 +115,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
   req.session.userId = user._id;
 
   const token = jwt.sign({ id: user._id }, JWT_SECRET, {
-    expiresIn: JWT_EXPIRES_IN,
+    expiresIn: "30d",
   });
 
   const isProduction = NODE_ENV === "production";
