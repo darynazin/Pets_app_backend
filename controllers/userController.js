@@ -123,7 +123,6 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     httpOnly: true,
     sameSite: isProduction ? "None" : "Lax",
     secure: isProduction,
-    maxAge: 24 * 60 * 60 * 1000,
   };
 
   res
