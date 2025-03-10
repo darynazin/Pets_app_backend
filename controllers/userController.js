@@ -48,7 +48,6 @@ export const createUser = asyncHandler(async (req, res, next) => {
   const isProduction = NODE_ENV === "production";
   const cookieOptions = {
     httpOnly: true,
-    sameSite: isProduction ? "None" : "Lax",
     secure: isProduction,
   };
 
@@ -92,7 +91,6 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
 // User Login
 export const loginUser = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
-  console.log(req.body)
 
   const user = await User.findOne({ email });
   if (!user) {
@@ -113,6 +111,7 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     image: user.image,
     role: user.role,
   };
+
   req.session.userId = user._id;
 
   const token = jwt.sign({ id: user._id }, JWT_SECRET, {
@@ -122,7 +121,6 @@ export const loginUser = asyncHandler(async (req, res, next) => {
   const isProduction = NODE_ENV === "production";
   const cookieOptions = {
     httpOnly: true,
-    sameSite: isProduction ? "None" : "Lax",
     secure: isProduction,
   };
 
@@ -131,14 +129,6 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     .status(200)
     .json({ message: "Login successful", user: req.session.user });
 });
-
-export const checkSession = (req, res) => {
-  if (req.session?.user) {
-    return res.json({ authenticated: true, user: req.session.user });
-  }
-
-  return res.json({ authenticated: false });
-};
 
 export const logoutUser = (req, res) => {
   req.session.destroy((err) => {

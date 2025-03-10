@@ -11,13 +11,9 @@ export const auth = asyncHandler(async (req, res, next) => {
   if (!token) {
     return next(new ErrorResponse("Not authorized to access this route", 401));
   }
-
   const decoded = jwt.verify(token, JWT_SECRET);
-  req.user =
+  req.session.user =
     (await User.findById(decoded.id)) || (await Doctor.findById(decoded.id));
 
-  if (req.user) {
-    return next();
-  }  
   next();
 });
