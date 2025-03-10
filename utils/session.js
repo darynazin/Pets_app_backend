@@ -13,6 +13,5 @@ export const authSession = session({
     maxAge: 1000 * 60 * 60,
     httpOnly: true,
     secure: isProduction,
-    sameSite: isProduction ? "None" : "Lax",
   },
 });

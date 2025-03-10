@@ -3,7 +3,12 @@ import ErrorResponse from "../utils/ErrorResponse.js";
 import bcrypt from "bcrypt";
 import asyncHandler from "../utils/asyncHandler.js";
 import jwt from "jsonwebtoken";
-import { MAPS_API_KEY, JWT_SECRET, JWT_EXPIRES_IN, NODE_ENV } from "../config/config.js";
+import {
+  MAPS_API_KEY,
+  JWT_SECRET,
+  JWT_EXPIRES_IN,
+  NODE_ENV,
+} from "../config/config.js";
 
 // Get all doctors
 export const getDoctors = asyncHandler(async (req, res, next) => {
@@ -78,7 +83,6 @@ export const createDoctor = asyncHandler(async (req, res, next) => {
 
   const cookieOptions = {
     httpOnly: true,
-    sameSite: isProduction ? "None" : "Lax",
     secure: isProduction,
   };
 
@@ -133,13 +137,17 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
 
   if (image) {
     try {
-      const blob = bucket.file(`images/${doctor.name}/${Date.now()}_${image.originalname}`);
+      const blob = bucket.file(
+        `images/${doctor.name}/${Date.now()}_${image.originalname}`
+      );
       const blobStream = blob.createWriteStream({
         metadata: { contentType: image.mimetype },
       });
 
       await new Promise((resolve, reject) => {
-        blobStream.on("error", (err) => reject(new CustomError("Image upload failed", 500)));
+        blobStream.on("error", (err) =>
+          reject(new CustomError("Image upload failed", 500))
+        );
         blobStream.on("finish", resolve);
         blobStream.end(image.buffer);
       });
@@ -166,7 +174,6 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
   res.status(200).json(updatedDoctor);
 });
 
-
 export const deleteDoctor = asyncHandler(async (req, res, next) => {
   const doctorId = req.user.id;
   const deletedDoctor = await Doctor.findByIdAndDelete(doctorId);
@@ -181,7 +188,7 @@ export const deleteDoctor = asyncHandler(async (req, res, next) => {
 export const loginDoctor = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
   const doctor = await Doctor.findOne({ email });
-  
+
   if (!doctor) {
     return next(new ErrorResponse("Invalid credentials", 401));
   }
@@ -211,19 +218,17 @@ export const loginDoctor = asyncHandler(async (req, res, next) => {
   const isProduction = NODE_ENV === "production";
   const cookieOptions = {
     httpOnly: true,
-    sameSite: isProduction ? "None" : "Lax",
     secure: isProduction,
   };
 
   res
-  .cookie("token", token, cookieOptions)
-  .status(200)
-  .json({ message: "Login successful", user: req.session.user });
+    .cookie("token", token, cookieOptions)
+    .status(200)
+    .json({ message: "Login successful", user: req.session.user });
 });
 
-
 export const checkSession = (req, res) => {
-  if (req.session?.user) {
+  if (req.session.user) {
     return res.json({ authenticated: true, user: req.session.user });
   }
 

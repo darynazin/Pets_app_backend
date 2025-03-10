@@ -10,15 +10,15 @@ import {
   logoutDoctor,
   getCurrentDoctor,
   checkSession,
-} from '../controllers/doctorController.js';
+} from "../controllers/doctorController.js";
 
-import { auth } from '../middleware/authMiddleware.js';
+import { auth } from "../middleware/authMiddleware.js";
 
 const doctorsRouter = Router();
 
 doctorsRouter.post(`/`, createDoctor);
 doctorsRouter.post(`/login`, loginDoctor);
-doctorsRouter.get(`/session`, checkSession);
+doctorsRouter.get(`/session`, auth, checkSession);
 doctorsRouter.post(`/logout`, auth, logoutDoctor);
 doctorsRouter.get(`/`, getDoctors);
 doctorsRouter.get(`/me`, auth, getCurrentDoctor);

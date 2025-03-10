@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router } from "express";
 
 import {
   getUsers,
@@ -8,18 +8,16 @@ import {
   deleteUser,
   loginUser,
   logoutUser,
-  checkSession,
-} from '../controllers/userController.js';
+} from "../controllers/userController.js";
 
-import { auth } from '../middleware/authMiddleware.js';
+import { auth } from "../middleware/authMiddleware.js";
 
 const usersRouter = Router();
 
 usersRouter.post(`/`, createUser);
 usersRouter.post(`/login`, loginUser);
-usersRouter.get(`/session`, checkSession);
-usersRouter.post(`/logout`, logoutUser);
 usersRouter.use(auth);
+usersRouter.post(`/logout`, logoutUser);
 usersRouter.get(`/`, getUsers);
 usersRouter.get(`/me`, getUserById);
 usersRouter.put(`/`, updateUser);
