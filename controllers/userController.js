@@ -83,15 +83,16 @@ export const deleteUser = asyncHandler(async (req, res, next) => {
 
   const deletedUser = await User.findByIdAndDelete(userId);
   if (!deletedUser) {
-    throw new ErrorResponse('User not found', 404);
+    throw new ErrorResponse("User not found", 404);
   }
 
-  res.status(204).json({ message: 'User deleted successfully' });
+  res.status(204).json({ message: "User deleted successfully" });
 });
 
 // User Login
 export const loginUser = asyncHandler(async (req, res, next) => {
   const { email, password } = req.body;
+  console.log(req.body)
 
   const user = await User.findOne({ email });
   if (!user) {
