@@ -143,8 +143,8 @@ export const logoutUser = (req, res) => {
     if (err) {
       return res.status(500).json({ message: "Logout failed" });
     }
-    res.clearCookie("connect.sid");
-    res.clearCookie("token");
+    res.clearCookie("connect.sid", { sameSite: "None", secure: true });
+    res.clearCookie("token", { sameSite: "None", secure: true });
     res.status(200).json({ message: "Logout successful" });
   });
 };
