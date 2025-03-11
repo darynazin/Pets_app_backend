@@ -45,10 +45,10 @@ export const createUser = asyncHandler(async (req, res, next) => {
     { expiresIn: String(JWT_EXPIRES_IN) }
   );
 
-  const isProduction = NODE_ENV === "production";
   const cookieOptions = {
     httpOnly: true,
-    secure: isProduction,
+    secure: true,
+    sameSite: "none",
   };
 
   res.cookie("token", token, cookieOptions);
@@ -118,10 +118,10 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     expiresIn: "30d",
   });
 
-  const isProduction = NODE_ENV === "production";
   const cookieOptions = {
     httpOnly: true,
-    secure: isProduction,
+    secure: true,
+    sameSite: "none",
   };
 
   res
