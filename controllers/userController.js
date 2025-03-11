@@ -130,6 +130,14 @@ export const loginUser = asyncHandler(async (req, res, next) => {
     .json({ message: "Login successful", user: req.session.user });
 });
 
+export const checkSession = (req, res) => {
+  if (req.session.user) {
+    return res.json({ authenticated: true, user: req.session.user });
+  }
+
+  return res.json({ authenticated: false });
+};
+
 export const logoutUser = (req, res) => {
   req.session.destroy((err) => {
     if (err) {
