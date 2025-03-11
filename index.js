@@ -11,6 +11,8 @@ import { authSession } from './utils/session.js';
 import chatRouter from './routers/chatRouter.js';
 import cors from "cors";
 import { PORT, CLIENT_URL } from "./config/config.js";
+import { checkSession } from './controllers/userController.js';
+import { auth } from './middleware/authMiddleware.js';
 
 const app = express();
 
@@ -33,6 +35,7 @@ app.use("/pets", petsRouter);
 app.use("/appointments", appointmentsRouter);
 app.use("/upload", uploadRouter);
 app.use('/api/v1/chat/completions', chatRouter);
+app.get(`/session`, auth, checkSession);
 app.use("*", (req, res) => res.status(404).json({ error: "Not Found" }));
 app.use(errorHandler);
 

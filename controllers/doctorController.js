@@ -175,7 +175,7 @@ export const updateDoctor = asyncHandler(async (req, res, next) => {
 });
 
 export const deleteDoctor = asyncHandler(async (req, res, next) => {
-  const doctorId = req.user.id;
+  const doctorId = req.session.user.id;
   const deletedDoctor = await Doctor.findByIdAndDelete(doctorId);
   if (!deletedDoctor) {
     throw new ErrorResponse("Doctor not found", 404);
