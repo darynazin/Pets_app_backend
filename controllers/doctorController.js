@@ -37,7 +37,7 @@ export const getCurrentDoctor = asyncHandler(async (req, res, next) => {
 
 export const createDoctor = asyncHandler(async (req, res, next) => {
   const { name, email, password, image, address, phoneNumber } = req.body;
-  console.log(req.body)
+  console.log(req.body);
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -79,11 +79,10 @@ export const createDoctor = asyncHandler(async (req, res, next) => {
     expiresIn: String(JWT_EXPIRES_IN),
   });
 
-  const isProduction = NODE_ENV === "production";
-
   const cookieOptions = {
     httpOnly: true,
-    secure: isProduction,
+    secure: true,
+    sameSite: "none",
   };
 
   res.cookie("token", token, cookieOptions);
@@ -215,10 +214,10 @@ export const loginDoctor = asyncHandler(async (req, res, next) => {
     expiresIn: "30d",
   });
 
-  const isProduction = NODE_ENV === "production";
   const cookieOptions = {
     httpOnly: true,
-    secure: isProduction,
+    secure: true,
+    sameSite: "none",
   };
 
   res
