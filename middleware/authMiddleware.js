@@ -9,7 +9,7 @@ export const auth = asyncHandler(async (req, res, next) => {
   const token = req.cookies.token;
 
   if (!token) {
-    return next(new ErrorResponse("Not authorized to access this route", 401));
+    return next(new ErrorResponse("Not authorized to access this route", 200));
   }
   const decoded = jwt.verify(token, JWT_SECRET);
   req.session.user =
